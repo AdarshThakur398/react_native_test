@@ -7,7 +7,7 @@ const Splash = () => {
   return (
     <div className="splash-screen">
       <div className="splash-logo">
-        <h1><img src={logo}/></h1> 
+        <h1><img src={logo} alt='description'/></h1> 
       </div>
       <div className="splash-message">
         <p>Welcome to my Website!</p>
