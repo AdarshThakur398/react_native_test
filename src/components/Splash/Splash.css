@@ -1,0 +1,39 @@
+.splash-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #000; 
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  
+  .splash-logo h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    animation: fadeIn 2s ease-in-out;
+  }
+  .splash-logo h1 img{
+    height:200px;
+    width:200px;
+    border-radius: 50px;
+
+  }
+  
+  .splash-message p {
+    font-size: 1.5rem;
+    animation: fadeIn 2s ease-in-out 1s;
+  }
+  
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  

@@ -1,83 +1,65 @@
-import { useRef, useState } from "react";
-import { Images } from "../../../assets/images";
-import { SearchBarWrapper } from "./SearchBar.styles";
-import { Icons } from "../../../assets/icons";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchSearchResults,
-  resetSearchResults,
-} from "../../../redux/slices/showsSlice";
-import { selectSearchResults } from "../../../redux/selectors/showsSelectors";
-import SearchList from "../SearchList/SearchList";
-import NotDataFound from "../../common/NotDataFound/NotDataFound";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './Search.css';
 
-const SearchBar = () => {
-  const [query, setQuery] = useState("");
-  const [searchError, setSearchError] = useState("");
-  const [hasValidQuery, setHasValidQuery] = useState(false);
-  const dispatch = useDispatch();
-  const inputRef = useRef("");
-  const searchResultsData = useSelector(selectSearchResults);
+const Search = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const navigate = useNavigate();
 
-  const isValidSearchQuery = (query) => {
-    const regex = /^[\w\s\-',.?!&]+$/i;
-    return regex.test(query);
-  };
-
-  const handleQuerySubmit = async (event) => {
-    event.preventDefault();
-    if (isValidSearchQuery(query)) {
-      dispatch(resetSearchResults());
-      setHasValidQuery(true);
-      setSearchError("");
-      dispatch(fetchSearchResults(query));
-    } else if (query.trim().length === 0) {
-      setSearchError("Please enter shows name.");
-      setHasValidQuery(false);
-    } else {
-      setSearchError("Please enter valid show title or name.");
-      setHasValidQuery(false);
+  const handleSearch = async () => {
+    try {
+      const response = await fetch(`https://api.tvmaze.com/search/shows?q=${searchTerm}`);
+      const data = await response.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error('Error fetching search results:', error);
     }
   };
 
-  const handleQueryChange = (event) => setQuery(event.target.value);
+  const handleHomeClick = () => {
+    navigate('/');
+  };
 
   return (
-    <SearchBarWrapper>
-      <div className="searchbar-top flex items-center justify-center">
-        <img
-          src={Images.HomeBanner}
-          alt=""
-          className="obj-fit-cover searchbar-banner"
+    <div className="search-container">
+      <div className="search-header">
+        <h2>Search for a Show</h2>
+      </div>
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search for a show"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <form onSubmit={handleQuerySubmit}>
-          <div className="search-box flex">
-            <div className="search-input">
-              <input
-                type="text"
-                placeholder="Search for TV shows ..."
-                className="text-lg font-semibold"
-                onChange={handleQueryChange}
-                ref={inputRef}
+        <button onClick={handleSearch}>Search</button>
+      </div>
+      <div className="search-results">
+        {searchResults.length > 0 ? (
+          searchResults.map((result) => (
+            <div
+              className="search-result-card"
+              key={result.show.id}
+              onClick={() => navigate(`/details/${result.show.id}`)}
+            >
+              <img
+                src={result.show.image?.medium || 'https://via.placeholder.com/210x295'}
+                alt={result.show.name}
               />
+              <p>{result.show.name}</p>
             </div>
-            <button type="submit" className="search-icon bg-transparent">
-              <img src={Icons.Search} alt="" />
-            </button>
-            <span className="search-error-text">{searchError}</span>
-          </div>
-        </form>
+          ))
+        ) : (
+          <p>No results found. Try searching for a show.</p>
+        )}
       </div>
-      <div className="searchbar-bottom">
-        {hasValidQuery &&
-          (searchResultsData && searchResultsData.length > 0 ? (
-            <SearchList searchResultsData={searchResultsData} />
-          ) : (
-            <NotDataFound />
-          ))}
-      </div>
-    </SearchBarWrapper>
+
+      <button className="home-button" onClick={handleHomeClick}>
+        Go to Home
+      </button>
+    </div>
   );
 };
 
-export default SearchBar;
+export default Search;
